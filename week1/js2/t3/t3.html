@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Even Number Extractor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+        }
+        .result-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .even-numbers {
+            font-size: 20px;
+            color: #28a745;
+            font-weight: bold;
+        }
+        .no-even {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .end-message {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f3ff;
+            border-radius: 5px;
+            color: #007bff;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script src="t3.js" defer></script>
+</head>
+<body>
+    <h1>Even Number Extractor</h1>
+    <p>Enter numbers one by one. Type 'done' when finished.</p>
+    <button id="start-extractor">Start Extracting Numbers</button>
+    <div id="results-container" class="result-section"></div>
+</body>
+</html>
