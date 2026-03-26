@@ -64,4 +64,4 @@ function main() {
 }
 
 // Event listener for the start button
-document.getElementById('start-extractor').addEventListener('click', runEvenNumberExtractor);
+document.getElementById('start-extractor').addEventListener('click', main);
