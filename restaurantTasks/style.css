@@ -1,8 +1,8 @@
 /* VARIABLES & RESET */
 :root {
-    --primary: #c67700;      /* Metropolia-style Blue */
+    --primary: #c67700;    
     --primary-dark: #005a9e;
-    --accent: #ffcc00;       /* Highlight Yellow */
+    --accent: #ffcc00;     
     --success: #28a745;
     --text: #333333;
     --text-light: #666666;
