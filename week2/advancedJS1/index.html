@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudentDiscountFOOD | Find Your Menu</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="main.js" type="module" defer></script>
+    <script src="map.js" defer></script>
+    <script src="app.js" defer></script>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container">
+            <h1 class="logo">Student<span>DiscountFOOD</span></h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="#profile">Profile</a></li>
+                    <li><a href="register.html" id="register-nav-btn" class="btn-primary">Register</a></li>
+                    <li><a href="login.html" id="login-nav-btn" class="btn-primary">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="filters-section">
+            <div class="search-bar">
+                <input type="text" id="restaurant-search" placeholder="Search by restaurant name...">
+            </div>
+            <div class="filter-group">
+                <select name="city" id="city-filter">
+                    <option value="">All Cities</option>
+                    <option value="Helsinki">Helsinki</option>
+                    <option value="Espoo">Espoo</option>
+                    <option value="Vantaa">Vantaa</option>
+                </select>
+                <select name="provider" id="provider-filter">
+                    <option value="">All Providers</option>
+                    <option value="Sodexo">Sodexo</option>
+                    <option value="Compass Group">Compass Group</option>
+                </select>
+            </div>
+        </section>
+
+        <div class="content-grid">
+            <section class="restaurant-list-container">
+                <header class="section-header">
+                    <h2>Available Restaurants</h2>
+                    <p>Click a restaurant to view its location and menu.</p>
+                </header>
+                <div id="list-container">
+                    <p>Loading restaurants...</p>
+                </div>
+            </section>
+
+            <section id="map-section" class="map-container">
+                <div id="map"></div>
+            </section>
+        </div>
+
+        <hr>
+
+        <section id="profile" class="card profile-section">
+            </section>
+    </main>
+
+    <table class="menu-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Provider</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody>
+        </tbody>
+    </table>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2026 StudentDiscountFOOD - Metropolia Web Applications Assignment</p>
+        </div>
+    </footer>
+
+    <div id="menu-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <div id="modal-body">
+                <p>Loading menu...</p>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>
