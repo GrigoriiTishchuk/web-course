@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="map.js" defer></script>
-    <script src="app.js"></script>
+    <script src="app.js" defer></script>
 </head>
 <body>
 
@@ -113,6 +113,14 @@
                     </div>
                     <button type="submit" class="btn-primary">Update Information</button>
                 </form>
+            </div>
+            <div id="menu-modal" class="modal-overlay">
+                <div class="modal-content">
+                    <button class="close-modal">&times;</button>
+                    <div id="modal-body">
+                        <p>Loading menu...</p>
+                    </div>
+                </div>
             </div>
             
             <div class="favorites-summary">

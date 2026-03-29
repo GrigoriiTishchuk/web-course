@@ -11,17 +11,20 @@
 
 <body>
   <h1>Todo List</h1>
-  <ul>
+  <ul id="todo-list">
     <!-- add todo list conent here -->
   </ul>
-  <dialog>
+  <dialog id="add-modal">
     <h2>Add Todo Item</h2>
-    <form>
-      <input type="text" placeholder="Add todo item here" />
-      <button type="submit">Add</button>
+    <form id="add-form">
+      <input type="text"  id="todo-input" placeholder="Add todo item here" />
+      <div class="form-buttons">
+        <button type="submit" id="save-btn">Save</button>
+        <button type="button" id="cancel-btn">Cancel</button>
+      </div>
     </form>
   </dialog>
-  <button class="add-btn">Add Todo Item</button>
+  <button class="add-btn" id="add-btn">Add Todo Item</button>
 </body>
 
 </html>
