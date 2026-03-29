@@ -2,7 +2,7 @@ const BASE_URL = 'https://media2.edu.metropolia.fi/restaurant/api/v1/restaurants
 const currentLang = 'fi';
 let allRestaurants = []; // Global storage for filtering
 
-// 1. Fetch and Display All Restaurants
+// Fetch and Display All Restaurants
 async function initApp() {
     try {
         const response = await fetch(BASE_URL);
@@ -18,7 +18,7 @@ async function initApp() {
     }
 }
 
-// 2. Display List Logic
+// Display List Logic
 function displayRestaurants(restaurants) {
     const list = document.getElementById('list-container');
     list.innerHTML = '';
@@ -46,7 +46,7 @@ function displayRestaurants(restaurants) {
     });
 }
 
-// 3. Render Map Markers
+// Render Map Markers
 function renderMapMarkers(restaurants) {
     restaurants.forEach(res => {
         const [lng, lat] = res.location.coordinates;
@@ -55,7 +55,7 @@ function renderMapMarkers(restaurants) {
     });
 }
 
-// 4. Filter Logic
+//  Filter Logic
 function setupFilters() {
     const searchInput = document.getElementById('restaurant-search');
     const cityFilter = document.getElementById('city-filter');
@@ -80,7 +80,7 @@ function setupFilters() {
     providerFilter.addEventListener('change', runFilters);
 }
 
-// 5. Menu Fetching
+// Menu Fetching
 async function getMenu(id, type) {
     const modal = document.getElementById('menu-modal');
     const modalBody = document.getElementById('modal-body');
@@ -107,7 +107,7 @@ async function getMenu(id, type) {
     }
 }
 
-// 6. Rendering Daily/Weekly
+//  Rendering Daily/Weekly
 function renderDaily(courses) {
     const modalBody = document.getElementById('modal-body');
     let html = '<h3>Today\'s Menu</h3><table class="menu-table"><thead><tr><th>Course</th><th>Diets</th><th>Price</th></tr></thead><tbody>';
@@ -136,7 +136,7 @@ function renderWeekly(days) {
     modalBody.innerHTML = html;
 }
 
-// 7. Modal Closing Logic
+// Modal Closing Logic
 document.querySelector('.close-modal').addEventListener('click', () => {
     document.getElementById('menu-modal').style.display = 'none';
 });
@@ -150,7 +150,7 @@ window.addEventListener('click', (event) => {
 });
 
 function showError(containerId, msg) {
-    document.getElementById(containerId).innerHTML = `<div class="error">⚠️ ${msg}</div>`;
+    document.getElementById(containerId).innerHTML = `<div class="error"> ${msg}</div>`;
 }
 
 // Start
