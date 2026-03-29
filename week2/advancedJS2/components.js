@@ -1,7 +1,6 @@
 export const restaurantRow = (restaurant) => {
-    // 1. Destructuring properties
+    // Destructuring properties
     const { name, company, address } = restaurant;
-
     const tr = document.createElement('tr');
     tr.innerHTML = `
         <td>${name}</td>
@@ -15,15 +14,13 @@ export const restaurantRow = (restaurant) => {
 export const restaurantModal = (restaurant, menu) => {
     //Destructuring restaurant object
     const { name, address, postalCode, city, phone, company } = restaurant;
-    // Destructuring menu object
+    //Destructuring menu object
     const { courses } = menu;
-
     let menuHtml = '<ul>';
     courses.forEach((course) => {
         // Use ternary operator to handle missing prices or diets
         const priceStr = course.price ? `${course.price} €` : '? €';
         const dietStr = course.diets ? `(${course.diets})` : '';
-        
         menuHtml += `<li><strong>${course.name}</strong>, ${priceStr} ${dietStr}</li>`;
     });
     menuHtml += '</ul>';

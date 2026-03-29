@@ -15,7 +15,6 @@ const displayRestaurants = (restaurants) => {
     // Higher-Order Function: forEach
     restaurants.forEach((restaurant) => {
         const row = restaurantRow(restaurant);
-        
         row.addEventListener('click', async () => {
             try {
                 const menu = await fetchData(`${BASE_URL}/daily/${restaurant._id}/fi`);
@@ -36,13 +35,10 @@ const init = async () => {
     try {
         // Fetch data once
         allRestaurants = await fetchData(BASE_URL);
-        
         // Initial alphabetical sort using arrow function
         allRestaurants.sort((a, b) => a.name.localeCompare(b.name));
-        
         // Initial display
         displayRestaurants(allRestaurants);
-        
         setupFilterButtons();
 
     } catch (error) {
@@ -55,15 +51,13 @@ const setupFilterButtons = () => {
     const sodexoBtn = document.querySelector('#filter-sodexo');
     const compassBtn = document.querySelector('#filter-compass');
     const resetBtn = document.querySelector('#filter-all');
-
     sodexoBtn.addEventListener('click', () => {
-        // Use filter to create a new array of only Sodexo
+        // Use filter Sodexo
         const filtered = allRestaurants.filter(res => res.company === 'Sodexo');
         displayRestaurants(filtered);
     });
-
     compassBtn.addEventListener('click', () => {
-        // Use filter to create a new array of only Compass Group
+        // Use filter Compass Group
         const filtered = allRestaurants.filter(res => res.company === 'Compass Group');
         displayRestaurants(filtered);
     });
