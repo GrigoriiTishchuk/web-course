@@ -1,5 +1,6 @@
 import express from 'express';
 import multer from 'multer';
+const upload = multer({dest: 'uploads/'});
 
 import {
   getCat,
@@ -10,7 +11,6 @@ import {
 } from '../controllers/cat-controller.js';
 
 const catRouter = express.Router();
-const upload = multer({dest: 'uploads/'});
 
 catRouter.route('/').get(getCat).post(upload.single('cat'), postCat);
 
