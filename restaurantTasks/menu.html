@@ -3,31 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant Menu | StudentEats</title>
+    <title>Restaurant Menu | StudentDiscountFOOD</title>
     <link rel="stylesheet" href="style.css">
+    <script src="menu.js" type="module"></script>
 </head>
 <body>
     <header class="main-header">
         <div class="container">
             <h1 class="logo">Student<span>DiscountFOOD</span></h1>
-            <nav><a href="index.html" class="btn-sm outline">Back to List</a></nav>
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="btn-sm outline">← Back to Restaurants</a></li>
+                </ul>
+            </nav>
         </div>
     </header>
 
     <main class="container">
         <section class="menu-detail-header">
-            <h2 id="restaurant-name">Metropolia Arabiakeskus</h2>
-            <p id="restaurant-address">Hämeentie 135, 00560 Helsinki</p>
+            <h2 id="restaurant-name">Loading...</h2>
+            <p id="restaurant-address">Please wait</p>
             <div class="view-toggle">
-                <button class="btn-sm active">Daily</button>
-                <button class="btn-sm outline">Weekly</button>
+                <button class="menu-type-btn active" data-type="daily">📅 Daily Menu</button>
+                <button class="menu-type-btn" data-type="weekly">📆 Weekly Menu</button>
             </div>
         </section>
 
-        <section class="menu-content">
-            <table class="menu-table">
-                <thead>
-                    <tr>
+        <section class="menu-content card">
+            <div id="menu-content">
+                <p>Loading menu...</p>
+            </div>
+        </section>
+
+        <section class="back-navigation">
+            <a href="index.html" class="btn-primary">← Return to Restaurants</a>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2026 StudentDiscountFOOD - Metropolia Web Applications Assignment</p>
+        </div>
+    </footer>
+</body>
+</html>
                         <th>Course</th>
                         <th>Dietary</th>
                         <th>Price</th>
