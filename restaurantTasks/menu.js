@@ -2,28 +2,21 @@ import API from './api.js';
 
 const MenuPage = {
   restaurantId: null,
-  menuType: 'daily', // 'daily' or 'weekly'
+  menuType: 'daily',
   currentUser: null,
-
-
+  
   async init() {
-    // Get query parameters
     const params = new URLSearchParams(window.location.search);
-    this.restaurantId = params.get('companyId');
+    this.restaurantId = params.get('id');
     this.menuType = params.get('view') || 'daily';
 
     if (!this.restaurantId) {
       document.getElementById('menu-content').innerHTML = '<p class="error">Restaurant not found</p>';
       return;
     }
-
-    // Load current user
+    
     this.currentUser = JSON.parse(localStorage.getItem('user'));
-
-    // Load menu
     await this.loadMenu();
-
-    // Attach event listeners
     this.attachEventListeners();
   },
 
@@ -34,9 +27,9 @@ const MenuPage = {
     try {
       let menuData;
       if (this.menuType === 'daily') {
-        menuData = await API.getDailyMenu(this.restaurantId);
+        menuData = await API.getDailyMenu(this.restaurantId, 'en');
       } else {
-        menuData = await API.getWeeklyMenu(this.restaurantId);
+        menuData = await API.getWeeklyMenu(this.restaurantId, 'en');
       }
 
       this.renderMenu(menuData);
@@ -49,23 +42,20 @@ const MenuPage = {
   renderMenu(menuData) {
     const menuContent = document.getElementById('menu-content');
 
-    if (!menuData || (menuData.error && !menuData.meals && !menuData.days)) {
+    if (!menuData || (menuData.error && !menuData.courses && !menuData.days)) {
       menuContent.innerHTML = '<p class="error">Menu not available</p>';
       return;
     }
 
-    // Handle different API response formats
     if (Array.isArray(menuData)) {
-      // Array of meals
       menuContent.innerHTML = this.renderMealsList(menuData);
-    } else if (menuData.meals) {
-      // Daily menu with meals array
-      menuContent.innerHTML = this.renderMealsList(menuData.meals);
+    } else if (menuData.courses) { 
+      // Daily menu
+      menuContent.innerHTML = this.renderMealsList(menuData.courses);
     } else if (menuData.days) {
-      // Weekly menu with days
+      // Weekly menu
       menuContent.innerHTML = this.renderWeeklyMenu(menuData.days);
     } else {
-      // Try to display raw data
       menuContent.innerHTML = `<pre>${JSON.stringify(menuData, null, 2)}</pre>`;
     }
   },
@@ -74,15 +64,14 @@ const MenuPage = {
     if (!meals || meals.length === 0) {
       return '<p>No meals available</p>';
     }
-
+    
     return `
       <div class="meals-list">
         ${meals.map(meal => `
           <div class="meal-item">
-            <h3>${meal.name || meal.title || 'Meal'}</h3>
-            ${meal.price ? `<p class="price">€${parseFloat(meal.price).toFixed(2)}</p>` : ''}
-            ${meal.description ? `<p class="description">${meal.description}</p>` : ''}
-            ${meal.allergens ? `<p class="allergens"><small>Allergens: ${meal.allergens}</small></p>` : ''}
+            <h3>${meal.name || 'Meal'}</h3>
+            ${meal.price ? `<p class="price">${meal.price}</p>` : ''}
+            ${meal.diets ? `<p class="diets"><small>Diets: ${meal.diets}</small></p>` : ''}
           </div>
         `).join('')}
       </div>
@@ -94,19 +83,17 @@ const MenuPage = {
       return '<p>No weekly menu available</p>';
     }
 
-    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
     return `
       <div class="weekly-menu">
-        ${days.map((day, index) => `
+        ${days.map((day) => `
           <div class="day-section">
-            <h3>${dayNames[index] || `Day ${index + 1}`}</h3>
+            <h3>${day.date || 'Day'}</h3>
             <div class="day-meals">
-              ${Array.isArray(day.meals) ? day.meals.map(meal => `
+              ${Array.isArray(day.courses) ? day.courses.map(meal => `
                 <div class="meal-item">
-                  <h4>${meal.name || meal.title || 'Meal'}</h4>
-                  ${meal.price ? `<p class="price">€${parseFloat(meal.price).toFixed(2)}</p>` : ''}
-                  ${meal.description ? `<p class="description">${meal.description}</p>` : ''}
+                  <h4>${meal.name || 'Meal'}</h4>
+                  ${meal.price ? `<p class="price">${meal.price}</p>` : ''}
+                  ${meal.diets ? `<p class="diets"><small>Diets: ${meal.diets}</small></p>` : ''}
                 </div>
               `).join('') : '<p>No meals for this day</p>'}
             </div>
@@ -120,13 +107,11 @@ const MenuPage = {
     const newType = event.target.dataset.type;
     this.menuType = newType;
 
-    // Update button states
     document.querySelectorAll('.menu-type-btn').forEach(btn => {
       btn.classList.remove('active');
     });
     event.target.classList.add('active');
 
-    // Load new menu
     this.loadMenu();
   },
 
@@ -138,7 +123,6 @@ const MenuPage = {
   }
 };
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
   MenuPage.init();
 });
