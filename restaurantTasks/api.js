@@ -1,6 +1,6 @@
 const API = {
-  // API endpoints - Update these to match your actual API
-  BASE_URL: 'https://your-api-endpoint.com/api',
+  // API endpoints
+  BASE_URL: 'https://media2.edu.metropolia.fi/restaurant/api/v1',
   
   async getRestaurants() {
     try {
@@ -14,31 +14,32 @@ const API = {
   },
 
 
-  async getDailyMenu(restaurantId) {
+  async getDailyMenu(id, lang = 'en') {
     try {
-      const response = await fetch(`${this.BASE_URL}/restaurants/${restaurantId}/menu/daily`);
+      const response = await fetch(`${this.BASE_URL}/restaurants/daily/${id}/${lang}`);
       if (!response.ok) throw new Error('Failed to fetch daily menu');
       return await response.json();
     } catch (error) {
-      console.error(`Error fetching daily menu for ${restaurantId}:`, error);
+      console.error(`Error fetching daily menu for ${id}:`, error);
       return { error: 'Could not load menu' };
     }
   },
 
-  async getWeeklyMenu(restaurantId) {
+
+  async getWeeklyMenu(id, lang = 'en') {
     try {
-      const response = await fetch(`${this.BASE_URL}/restaurants/${restaurantId}/menu/weekly`);
+      const response = await fetch(`${this.BASE_URL}/restaurants/weekly/${id}/${lang}`);
       if (!response.ok) throw new Error('Failed to fetch weekly menu');
       return await response.json();
     } catch (error) {
-      console.error(`Error fetching weekly menu for ${restaurantId}:`, error);
+      console.error(`Error fetching weekly menu for ${id}:`, error);
       return { error: 'Could not load menu' };
     }
   },
 
   async register(userData) {
     try {
-      const response = await fetch(`${this.BASE_URL}/auth/register`, {
+      const response = await fetch(`${this.BASE_URL}/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
@@ -104,7 +105,7 @@ const API = {
   async updateUserProfile(userData) {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`${this.BASE_URL}/auth/profile`, {
+      const response = await fetch(`${this.BASE_URL}/users`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -124,7 +125,7 @@ const API = {
   async uploadProfilePicture(formData) {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`${this.BASE_URL}/auth/profile/picture`, {
+      const response = await fetch(`${this.BASE_URL}/users/avatar`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -196,7 +197,7 @@ const API = {
         name: 'Metropolia Karamalmi',
         address: 'Karaportti 2, 02610 Espoo',
         city: 'Espoo',
-        provider: 'Sodexo',
+        company: 'Sodexo',
         latitude: 60.2055,
         longitude: 24.8548,
         phone: '+358 9 8707 1'
@@ -206,7 +207,7 @@ const API = {
         name: 'Sodexo Valimo',
         address: 'Valimotie 8, 00380 Helsinki',
         city: 'Helsinki',
-        provider: 'Sodexo',
+        company: 'Sodexo',
         latitude: 60.1627,
         longitude: 24.9633,
         phone: '+358 9 4763 8000'
@@ -216,7 +217,7 @@ const API = {
         name: 'Compass Meilahti',
         address: 'Haartmaninkatu 1, 00290 Helsinki',
         city: 'Helsinki',
-        provider: 'Compass Group',
+        company: 'Compass Group',
         latitude: 60.1941,
         longitude: 24.9338,
         phone: '+358 9 4711'
@@ -226,7 +227,7 @@ const API = {
         name: 'Metropolia Myyrmäki',
         address: 'Metsänneidonkuja 1, 01600 Vantaa',
         city: 'Vantaa',
-        provider: 'Sodexo',
+        company: 'Sodexo',
         latitude: 60.2540,
         longitude: 25.0387,
         phone: '+358 9 8707 2'

@@ -2,7 +2,6 @@
  * Main Application Logic for StudentDiscountFOOD
  * Handles restaurant listing, filtering, favorites, profile, and map integration
  */
-
 import API from './api.js';
 
 const AppState = {
@@ -13,7 +12,7 @@ const AppState = {
   filters: {
     search: '',
     city: '',
-    provider: ''
+    company: ''
   },
   currentRestaurantId: null,
 
@@ -21,7 +20,6 @@ const AppState = {
     this.currentUser = JSON.parse(localStorage.getItem('user')) || null;
     this.restaurants = await API.getRestaurants();
     this.filteredRestaurants = [...this.restaurants];
-    
     if (this.currentUser) {
       this.favorites = await API.getFavorites();
     }
@@ -34,15 +32,14 @@ const AppState = {
         .toLowerCase()
         .includes(this.filters.search.toLowerCase());
       const matchesCity = !this.filters.city || restaurant.city === this.filters.city;
-      const matchesProvider = !this.filters.provider || restaurant.provider === this.filters.provider;
+      const matchescompany = !this.filters.company || restaurant.company === this.filters.company;
       
-      return matchesSearch && matchesCity && matchesProvider;
+      return matchesSearch && matchesCity && matchescompany;
     });
   },
 
   getNearestRestaurant() {
-    if (!this.restaurants.length) return null;
-    
+    if (!this.restaurants.location.coordinates) return null;
     // Default to Espoo Metropolia if no geolocation
     const userLat = 60.2055;
     const userLon = 24.8548;
@@ -58,14 +55,14 @@ const AppState = {
     };
 
     let nearest = this.restaurants[0];
-    let minDistance = calculateDistance(userLat, userLon, nearest.latitude, nearest.longitude);
+    let minDistance = calculateDistance(userLat, userLon, nearest.location.coordinates[0], nearest.location.coordinates[1]);
 
     for (let i = 1; i < this.restaurants.length; i++) {
       const distance = calculateDistance(
         userLat,
         userLon,
-        this.restaurants[i].latitude,
-        this.restaurants[i].longitude
+        this.restaurants[i].location.coordinates[0],
+        this.restaurants[i].location.coordinates[1]
       );
       if (distance < minDistance) {
         minDistance = distance;
@@ -80,10 +77,9 @@ const AppState = {
    * Check if restaurant is in favorites
    */
   isFavorite(restaurantId) {
-    return this.favorites.some(fav => fav.restaurantId === restaurantId || fav.id === restaurantId);
+    return this.favorites.some(fav => fav.restaurantId === restaurantId || fav.companyId === restaurantId);
   }
 };
-
 
 const UI = {
   renderRestaurants() {
@@ -101,25 +97,23 @@ const UI = {
   createRestaurantCard(restaurant, nearest) {
     const article = document.createElement('article');
     article.className = 'card restaurant-card';
-    
-    if (nearest && restaurant.id === nearest.id) {
+    if (nearest && restaurant.companyId === nearest.companyId) {
       article.classList.add('highlighted');
     }
-
-    const isFavorite = AppState.isFavorite(restaurant.id);
+    const isFavorite = AppState.isFavorite(restaurant.companyId);
 
     article.innerHTML = `
       <div class="card-header">
         <h3>${restaurant.name}</h3>
-        ${nearest && restaurant.id === nearest.id ? '<span class="badge">Nearest</span>' : ''}
+        ${nearest && restaurant.companyId=== nearest.companyId ? '<span class="badge">Nearest</span>' : ''}
       </div>
       <p class="address">${restaurant.address}</p>
-      <p class="meta"><strong>${restaurant.provider}</strong> • ${restaurant.city}</p>
+      <p class="meta"><strong>${restaurant.company}</strong> • ${restaurant.city}</p>
       <div class="card-actions">
-        <a href="menu.html?id=${restaurant.id}&view=daily" class="btn-sm">Daily Menu</a>
-        <a href="menu.html?id=${restaurant.id}&view=weekly" class="btn-sm outline">Weekly</a>
+        <a href="menu.html?id=${restaurant.companyId}&view=daily" class="btn-sm">Daily Menu</a>
+        <a href="menu.html?id=${restaurant.companyId}&view=weekly" class="btn-sm outline">Weekly</a>
         <button class="btn-fav ${isFavorite ? 'active' : ''}" 
-                data-id="${restaurant.id}" 
+                data-id="${restaurant.companyId}" 
                 title="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
           ${isFavorite ? '❤️' : '🤍'}
         </button>
@@ -198,8 +192,8 @@ const Events = {
     UI.renderRestaurants();
   },
 
-  handleProviderFilter(event) {
-    AppState.filters.provider = event.target.value;
+  handlecompanyFilter(event) {
+    AppState.filters.company = event.target.value;
     AppState.applyFilters();
     UI.renderRestaurants();
   },
@@ -367,8 +361,8 @@ function attachEventListeners() {
   const cityFilter = document.getElementById('city-filter');
   if (cityFilter) cityFilter.addEventListener('change', Events.handleCityFilter);
 
-  const providerFilter = document.getElementById('provider-filter');
-  if (providerFilter) providerFilter.addEventListener('change', Events.handleProviderFilter);
+  const companyFilter = document.getElementById('company-filter');
+  if (companyFilter) companyFilter.addEventListener('change', Events.handlecompanyFilter);
 
   // Restaurant card listeners
   const listContainer = document.getElementById('list-container');

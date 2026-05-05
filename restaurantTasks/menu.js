@@ -9,7 +9,7 @@ const MenuPage = {
   async init() {
     // Get query parameters
     const params = new URLSearchParams(window.location.search);
-    this.restaurantId = params.get('id');
+    this.restaurantId = params.get('companyId');
     this.menuType = params.get('view') || 'daily';
 
     if (!this.restaurantId) {
