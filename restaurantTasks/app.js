@@ -6,7 +6,6 @@ import API from './api.js';
 const AppState = {
   restaurants: [],
   filteredRestaurants: [],
-  favorites: [],
   currentUser: null,
   filters: {
     search: '',
@@ -27,10 +26,6 @@ const AppState = {
     // Load restaurants and normalize
     this.restaurants = await API.getRestaurants();
     this.filteredRestaurants = [...this.restaurants];
-    // Load favorites if authenticated
-    if (this.currentUser) {
-      this.favorites = await API.getFavorites();
-    }
   },
 
   /**
@@ -60,7 +55,6 @@ const AppState = {
     // Default coordinates (Espoo Metropolia)
     const userLat = 60.2055;
     const userLon = 24.8548;
-
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
       const R = 6371; // Earth's radius in km
       const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -90,18 +84,6 @@ const AppState = {
     }
 
     return nearest;
-  },
-
-  /**
-   * Check if a restaurant is in user's favorites
-   */
-  isFavorite(restaurantId) {
-    if (!Array.isArray(this.favorites)) return false;
-    return this.favorites.some(fav => 
-      fav.restaurantId === restaurantId || 
-      fav._id === restaurantId ||
-      fav.id === restaurantId
-    );
   }
 };
 
@@ -116,9 +98,7 @@ const UI = {
       listContainer.innerHTML = '<p class="no-results">No restaurants match your filters.</p>';
       return;
     }
-    
     const nearest = AppState.getNearestRestaurant();
-    
     AppState.filteredRestaurants.forEach(restaurant => {
       const card = this.createRestaurantCard(restaurant, nearest);
       listContainer.appendChild(card);
@@ -136,7 +116,7 @@ const UI = {
       article.classList.add('highlighted');
     }
     
-    const isFavorite = AppState.isFavorite(restaurant._id);
+    const isFavorite = API.isFavoriteRestaurant(restaurant._id, AppState.currentUser);
 
     article.innerHTML = `
       <div class="card-header">
@@ -159,7 +139,6 @@ const UI = {
         </button>
       </div>
     `;
-
     return article;
   },
 
@@ -196,7 +175,7 @@ const UI = {
       // Fill profile form
       if (displayName) displayName.value = AppState.currentUser.username || AppState.currentUser.name || '';
       if (displayEmail) displayEmail.value = AppState.currentUser.email || '';
-      this.updateFavoritesCount();
+      this.updateProfileFavorite();
     } else {
       // Show auth buttons, hide profile
       if (loginBtn) loginBtn.style.display = 'inline-block';
@@ -205,16 +184,48 @@ const UI = {
     }
   },
 
-  updateFavoritesCount() {
-    const favCount = document.getElementById('fav-count');
-    if (favCount) {
-      const count = AppState.favorites?.length || 0;
-      favCount.textContent = count === 0
-        ? 'You have 0 favorites saved.'
-        : `You have ${count} favorite restaurant${count !== 1 ? 's' : ''} saved.`;
-    }
-  },
-
+/**
+ * Update profile section to show user's favorite restaurant
+ */
+updateProfileFavorite() {
+  const favSection = document.querySelector('.favorites-summary');
+  if (!favSection) return;
+  // If not logged in, hide section
+  if (!AppState.currentUser) {
+    favSection.style.display = 'none';
+    return;
+  }
+  favSection.style.display = 'block';
+  const favId = AppState.currentUser.favouriteRestaurant;
+  if (!favId) {
+    favSection.innerHTML = `
+      <h3>My Favorite Restaurant</h3>
+      <p><em>No favorite selected</em></p>
+      <p class="hint">Click the ❤️ button on any restaurant to set it as your favorite.</p>
+    `;
+    return;
+  }
+  // Find the restaurant object
+  const favRestaurant = AppState.restaurants.find(r => r._id === favId);
+  if (favRestaurant) {
+    favSection.innerHTML = `
+      <h3>My Favorite Restaurant</h3>
+      <div class="favorite-restaurant-card">
+        <strong>${this.escapeHtml(favRestaurant.name)}</strong><br>
+        <small>${this.escapeHtml(favRestaurant.address)}</small><br>
+        <small>${this.escapeHtml(favRestaurant.city)} • ${this.escapeHtml(favRestaurant.company)}</small>
+      </div>
+      <a href="menu.html?id=${favRestaurant._id}&view=daily" class="btn-sm" style="margin-top:8px;display:inline-block">View Menu</a>
+    `;
+  } else {
+    // Restaurant not in current list (maybe filtered out)
+    favSection.innerHTML = `
+      <h3>My Favorite Restaurant</h3>
+      <p><em>Favorite saved (ID: ${favId.slice(-6)}...)</em></p>
+      <button class="btn-sm outline" onclick="window.location.href='index.html'">View All Restaurants</button>
+    `;
+  }
+},
   showMenuModal(content) {
     const modal = document.getElementById('menu-modal');
     const modalBody = document.getElementById('modal-body');
@@ -263,48 +274,13 @@ const Events = {
     UI.renderRestaurants();
   },
 
-  async handleFavoriteClick(event) {
-    const btn = event.target.closest('.btn-fav');
-    if (!btn) return;
-    
-    if (!AppState.currentUser) {
-      alert('Please login to add favorites');
-      window.location.href = 'login.html';
-      return;
-    }
-
-    const restaurantId = btn.dataset.id;
-    const isFavorite = AppState.isFavorite(restaurantId);
-
-    try {
-      if (isFavorite) {
-        await API.removeFavorite(restaurantId);
-        AppState.favorites = AppState.favorites.filter(f => 
-          f.restaurantId !== restaurantId && 
-          f._id !== restaurantId &&
-          f.id !== restaurantId
-        );
-      } else {
-        await API.addFavorite(restaurantId);
-        AppState.favorites.push({ restaurantId, _id: restaurantId, id: restaurantId });
-      }
-      
-      UI.renderRestaurants();
-      UI.updateFavoritesCount();
-    } catch (error) {
-      console.error('Error updating favorite:', error);
-      alert('Failed to update favorite. Please try again.');
-    }
-  },
 
   async handleProfileUpdate(event) {
     event.preventDefault();
-
     if (!AppState.currentUser) {
       alert('Please login to update profile');
       return;
     }
-
     const displayName = document.getElementById('display-name')?.value;
     const displayEmail = document.getElementById('display-email')?.value;
     try {
@@ -315,7 +291,6 @@ const Events = {
       // Update local state
       AppState.currentUser = updated;
       localStorage.setItem('user', JSON.stringify(updated));
-      
       alert('Profile updated successfully');
       UI.updateAuthUI();
     } catch (error) {
@@ -323,6 +298,50 @@ const Events = {
       alert(error.message || 'Failed to update profile');
     }
   },
+  async handleFavoriteClick(event) {
+  console.log('Heart button clicked');
+  const btn = event.target.closest('.btn-fav');
+  if (!btn) {
+    console.log('No .btn-fav button found');
+    return;
+  }
+  // Check if user is logged in
+  if (!AppState.currentUser) {
+    alert('Please login to set a favorite restaurant');
+    window.location.href = 'login.html?returnTo=' + encodeURIComponent(window.location.href);
+    return;
+  }
+  const restaurantId = btn.dataset.id;
+  console.log(' Restaurant ID:', restaurantId);
+  const wasFavorite = btn.classList.contains('active');
+  console.log(' Was favorite?', wasFavorite);
+  try {
+    btn.classList.toggle('active');
+    btn.innerHTML = btn.classList.contains('active') ? '❤️' : '🤍';
+    btn.title = btn.classList.contains('active') ? 'Remove favorite' : 'Set as favorite';
+    if (wasFavorite) {
+      console.log('Removing favorite...');
+      await API.updateUserProfile({ favouriteRestaurant: null });
+    } else {
+      console.log('Setting favorite to:', restaurantId);
+      await API.updateUserProfile({ favouriteRestaurant: restaurantId });
+    }
+    // Update local state
+    AppState.currentUser.favouriteRestaurant = wasFavorite ? null : restaurantId;
+    localStorage.setItem('user', JSON.stringify(AppState.currentUser));
+    console.log('Local state updated');
+    // Re-render UI
+    UI.renderRestaurants();
+    UI.updateProfileFavorite();
+    console.log('UI re-rendered');
+  } catch (error) {
+    console.error(' Error updating favorite:', error);
+    // Revert UI on error
+    btn.classList.toggle('active');
+    btn.innerHTML = btn.classList.contains('active') ? '❤️' : '🤍';
+    alert('Failed to update favorite: ' + error.message);
+  }
+},
 
   async handleProfilePictureUpload(event) {
     if (!AppState.currentUser) {
@@ -442,7 +461,6 @@ const Events = {
       alert('Please enter username and password');
       return;
     }
-
     try {
       // Show loading state
       const submitBtn = form.querySelector('button[type="submit"]');
@@ -474,7 +492,6 @@ const Events = {
   handleLogout() {
     API.logout();
     AppState.currentUser = null;
-    AppState.favorites = [];
     UI.updateAuthUI();
     UI.renderRestaurants();
     alert('Logged out successfully');
@@ -571,7 +588,6 @@ function attachEventListeners() {
   if (listContainer) {
     listContainer.addEventListener('click', Events.handleFavoriteClick);
   }
-
   // Profile form listeners
   const profileForm = document.getElementById('update-profile-form');
   if (profileForm) profileForm.addEventListener('submit', Events.handleProfileUpdate);

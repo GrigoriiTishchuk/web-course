@@ -12,7 +12,6 @@ function normalizeRestaurant(restaurant) {
 const API = {
   // API endpoints
   BASE_URL: 'https://media2.edu.metropolia.fi/restaurant/api/v1',
-  
   /**
    * Fetch all restaurants and normalize coordinates
    */
@@ -229,84 +228,31 @@ const API = {
     }
   },
 
-  /**
-   * Get user's favorite restaurants
-   * ⚠️ Verify this endpoint exists in your backend
-   */
-  async getFavorites() {
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) return [];
-      
-      const response = await fetch(`${this.BASE_URL}/favorites`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+    isFavoriteRestaurant(restaurantId, user = null) {
+    // Use provided user or get from localStorage
+    const currentUser = user || JSON.parse(localStorage.getItem('user'));
+    if (!currentUser?.favouriteRestaurant) return false;
+    // Compare as strings (both _id and favouriteRestaurant are strings)
+    return currentUser.favouriteRestaurant.toString() === restaurantId.toString();
+ },
+    /**
+     * Set a restaurant as user's favorite
+     * @param {string} restaurantId - Restaurant _id to set as favorite
+     */
+    async setFavoriteRestaurant(restaurantId) {
+      return await this.updateUserProfile({ 
+        favouriteRestaurant: restaurantId 
       });
-      
-      if (!response.ok) return [];
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching favorites:', error);
-      return [];
-    }
-  },
+    },
 
-  /**
-   * Add restaurant to favorites
-   * @param {string} restaurantId - Restaurant _id
-   */
-  async addFavorite(restaurantId) {
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) throw new Error('Not authenticated');
-      
-      const response = await fetch(`${this.BASE_URL}/favorites`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ restaurantId })
+    /**
+     * Remove user's favorite restaurant
+     */
+    async removeFavoriteRestaurant() {
+      return await this.updateUserProfile({ 
+        favouriteRestaurant: null 
       });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to add favorite');
-      }
-      
-      return result;
-    } catch (error) {
-      console.error('Error adding favorite:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * Remove restaurant from favorites
-   * @param {string} restaurantId - Restaurant _id
-   */
-  async removeFavorite(restaurantId) {
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) throw new Error('Not authenticated');
-      
-      const response = await fetch(`${this.BASE_URL}/favorites/${restaurantId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to remove favorite');
-      }
-      
-      return result;
-    } catch (error) {
-      console.error('Error removing favorite:', error);
-      throw error;
-    }
-  },
+    },
 
   /**
    * Check if username is available
